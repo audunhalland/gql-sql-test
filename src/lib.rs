@@ -1,4 +1,5 @@
 mod repository;
+mod server;
 
 pub mod schema {
     pub mod query;

@@ -1,4 +1,4 @@
-struct Repository {
+pub struct Repository {
     pool: sqlx::PgPool,
 }
 
