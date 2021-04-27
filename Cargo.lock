@@ -634,8 +634,10 @@ name = "gql-sql-test"
 version = "0.1.0"
 dependencies = [
  "async-graphql",
+ "futures",
  "sqlx",
  "tokio",
+ "uuid",
 ]
 
 [[package]]
