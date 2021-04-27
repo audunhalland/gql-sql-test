@@ -12,12 +12,15 @@ use crate::schema::query::Query;
 use crate::schema::subscription::Subscription;
 
 ///
-/// Start a web server providing the /graphql endpoint plus a playground
+/// Start a web server providing the /graphql endpoint plus a playground.
+///
+/// The server runs as long as its future is polled by the executor.
+/// The server is a future that never completes.
 ///
 pub async fn serve(pg_pool: sqlx::PgPool) {
     let schema = Schema::build(Query, EmptyMutation, Subscription).finish();
 
-    let graphql_post = warp::path("/graphql")
+    let graphql_post = warp::path!("graphql")
         .and(warp::post())
         .and(async_graphql_warp::graphql(schema))
         .and(warp::any().map(move || pg_pool.clone()))
