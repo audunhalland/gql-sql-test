@@ -671,6 +671,7 @@ dependencies = [
  "futures",
  "sqlx",
  "tokio",
+ "tokio-stream",
  "uuid",
  "warp",
 ]
@@ -1873,6 +1874,7 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
+ "tokio-util",
 ]
 
 [[package]]

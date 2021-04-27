@@ -1,5 +1,6 @@
 pub mod config;
 
+mod bus;
 mod repository;
 mod server;
 
