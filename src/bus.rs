@@ -11,7 +11,7 @@ impl EventBus {
         Self { sender }
     }
 
-    pub fn subscribe(&self) -> tokio::sync::broadcast::Receiver<Event> {
-        self.sender.subscribe()
+    pub fn sender(&self) -> &tokio::sync::broadcast::Sender<Event> {
+        &self.sender
     }
 }
