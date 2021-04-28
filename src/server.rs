@@ -4,11 +4,11 @@ use warp::http::StatusCode;
 use warp::{http::Response as HttpResponse, Filter, Rejection};
 
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use async_graphql::EmptyMutation;
 use async_graphql::Schema;
 
 use crate::bus::EventBus;
 use crate::repository::Repository;
+use crate::schema::mutation::Mutation;
 use crate::schema::query::Query;
 use crate::schema::subscription::Subscription;
 
@@ -20,7 +20,7 @@ use crate::schema::subscription::Subscription;
 ///
 pub async fn serve(pg_pool: sqlx::PgPool) {
     let event_bus = EventBus::new();
-    let schema = Schema::build(Query, EmptyMutation, Subscription).finish();
+    let schema = Schema::build(Query, Mutation, Subscription).finish();
 
     let graphql_post = warp::path!("graphql")
         .and(warp::post())
@@ -59,7 +59,7 @@ pub async fn serve(pg_pool: sqlx::PgPool) {
 
 async fn execute_graphql(
     (schema, mut request): (
-        Schema<Query, EmptyMutation, Subscription>,
+        Schema<Query, Mutation, Subscription>,
         async_graphql::Request,
     ),
     pg_pool: sqlx::PgPool,
