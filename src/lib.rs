@@ -5,11 +5,11 @@ mod repository;
 mod server;
 
 pub mod schema {
-    pub mod data;
     pub mod event;
     pub mod mutation;
     pub mod query;
     pub mod subscription;
+    pub mod todo_item;
 }
 
 ///

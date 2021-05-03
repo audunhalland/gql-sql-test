@@ -53,7 +53,6 @@ pub async fn serve(pg_pool: sqlx::PgPool) {
         .or(graphql_subscription(schema))
         .or(graphql_playground)
         .recover(|err: Rejection| async move {
-            println!("rejection: {:?}", err);
             if let Some(async_graphql_warp::BadRequest(err)) = err.find() {
                 return Ok::<_, Infallible>(warp::reply::with_status(
                     err.to_string(),

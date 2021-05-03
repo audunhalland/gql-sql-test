@@ -1,5 +1,4 @@
-
 #[derive(async_graphql::SimpleObject)]
-pub struct Data {
+pub struct TodoItem {
     pub id: uuid::Uuid,
 }
