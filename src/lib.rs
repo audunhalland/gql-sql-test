@@ -1,6 +1,7 @@
 pub mod config;
 
 mod bus;
+mod error;
 mod repository;
 mod server;
 

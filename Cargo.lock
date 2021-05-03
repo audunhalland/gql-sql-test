@@ -670,6 +670,7 @@ dependencies = [
  "async-graphql-warp",
  "futures",
  "sqlx",
+ "thiserror",
  "tokio",
  "tokio-stream",
  "uuid",
