@@ -16,3 +16,6 @@ async-graphql-warp = "2.8"
 futures = "0.3"
 uuid = "0.8"
 thiserror = "1"
+
+[dev-dependencies]
+faux = "0.1"
