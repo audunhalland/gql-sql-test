@@ -29,10 +29,20 @@ impl Repository {
     }
 
     /// Fetch todo items.
-    pub async fn fetch_todo_items(&self, range: Range<usize>) -> Result<Vec<TodoItem>, AppError> {
+    pub async fn fetch_todo_items(
+        &self,
+        ids: Option<&[uuid::Uuid]>,
+        range: Range<usize>,
+    ) -> Result<Vec<TodoItem>, AppError> {
         let rows = sqlx::query_as!(
             TodoItem,
-            "SELECT id, description, done FROM todo_item OFFSET $1 LIMIT $2",
+            "SELECT id, description, done
+            FROM todo_item
+            WHERE
+                id = any($1) OR $1 IS NULL
+            OFFSET $2
+            LIMIT $3",
+            ids,
             range.start as u32,
             range.end as u32
         )

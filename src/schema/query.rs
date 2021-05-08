@@ -18,7 +18,7 @@ impl Query {
         ctx: &async_graphql::Context<'_>,
     ) -> Result<Vec<TodoItem>, AppError> {
         let repository = ctx.data_unchecked::<Repository>();
-        let todo_items: Vec<TodoItem> = repository.fetch_todo_items(0..20).await?;
+        let todo_items: Vec<TodoItem> = repository.fetch_todo_items(None, 0..20).await?;
 
         Ok(todo_items)
     }
