@@ -16,6 +16,6 @@ pub mod schema {
 ///
 /// Run the application as a server
 ///
-pub async fn run(pg_pool: sqlx::PgPool) {
-    server::serve(pg_pool).await;
+pub async fn run(port: Option<u16>, pg_pool: sqlx::PgPool) {
+    server::serve(port, pg_pool).await;
 }

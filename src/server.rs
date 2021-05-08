@@ -13,15 +13,14 @@ use crate::schema::mutation::Mutation;
 use crate::schema::query::Query;
 use crate::schema::subscription::Subscription;
 
-const SERVER_PORT: u16 = 8000;
-
 ///
 /// Start a web server providing the /graphql endpoint plus a playground.
 ///
 /// The server runs as long as its future is polled by the executor.
 /// The server is a future that never completes.
 ///
-pub async fn serve(pg_pool: sqlx::PgPool) {
+pub async fn serve(port: Option<u16>, pg_pool: sqlx::PgPool) {
+    let port = port.unwrap_or(0);
     let schema = Schema::build(Query, Mutation, Subscription)
         .data(Repository::new(pg_pool))
         .data(EventBus::new())
@@ -40,12 +39,12 @@ pub async fn serve(pg_pool: sqlx::PgPool) {
             },
         );
 
-    let graphql_playground = warp::path::end().and(warp::get()).map(|| {
+    let graphql_playground = warp::path::end().and(warp::get()).map(move || {
         HttpResponse::builder()
             .header("content-type", "text/html")
             .body(playground_source(
                 GraphQLPlaygroundConfig::new("/graphql")
-                    .subscription_endpoint(&format!("ws://localhost:{}", SERVER_PORT)),
+                    .subscription_endpoint(&format!("ws://localhost:{}", port)),
             ))
     });
 
@@ -66,5 +65,5 @@ pub async fn serve(pg_pool: sqlx::PgPool) {
             ))
         });
 
-    warp::serve(routes).run(([0, 0, 0, 0], SERVER_PORT)).await;
+    warp::serve(routes).run(([0, 0, 0, 0], port)).await;
 }

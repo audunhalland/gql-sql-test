@@ -14,5 +14,5 @@ async fn main() {
         .await
         .expect("Failed to migrate");
 
-    gql_sql_test::run(pg_pool).await;
+    gql_sql_test::run(Some(8000), pg_pool).await;
 }
