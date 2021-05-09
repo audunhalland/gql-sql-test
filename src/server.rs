@@ -40,20 +40,24 @@ mod filters {
     pub fn post_graphql(
         schema: AppSchema,
     ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path("graphql")
-            .and(warp::post())
+        warp::post()
+            .and(warp::path("graphql"))
+            .and(warp::path::end())
+            // GraphQL request parser filter:
             // `and` filters statically builds up `Extract` argument lists.
             // The `Extract` of the following filter is a tuple of `(AppSchema, Request)`.
             // The `Extract` of the preceding filters are empty tuples...
             .and(async_graphql_warp::graphql(schema))
             // ...so the `execute_graphql` function accepts this _one tuple_ as its argument.
+            // The `.and_then` combinator is an asynchronous mapper, in this
+            // case mapping the Extract type to the filter's output trait, `warp::Reply`.
             .and_then(execute_graphql)
     }
 
     pub fn get_graphql_playground(
         websocket_port: u16,
     ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path::end().and(warp::get()).map(move || {
+        warp::get().and(warp::path::end()).map(move || {
             HttpResponse::builder()
                 .header("content-type", "text/html")
                 .body(playground_source(
