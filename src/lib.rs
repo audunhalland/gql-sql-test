@@ -11,6 +11,9 @@ pub mod schema {
     pub mod query;
     pub mod subscription;
     pub mod todo_item;
+
+    pub type AppSchema =
+        async_graphql::Schema<query::Query, mutation::Mutation, subscription::Subscription>;
 }
 
 ///
