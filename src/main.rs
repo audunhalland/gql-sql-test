@@ -9,6 +9,8 @@ async fn main() {
         .await
         .expect("Failed to connect to database");
 
+    // The `migrate!` macro _embeds_ the migration files into the resulting binary,
+    // so there is no need to worry about the filesystem during runtime
     sqlx::migrate!()
         .run(&pg_pool)
         .await
