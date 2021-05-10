@@ -7,35 +7,58 @@ async fn should_get_empty_todo_list_on_empty_database() {
     let test_db = TestDb::new().await;
 
     let todo_items = Repository::new(test_db.pg_pool.clone())
-        .fetch_todo_items(None, 0..0)
+        .fetch_todo_items(None, 0..10)
         .await
         .unwrap();
 
     assert_eq!(todo_items, vec![]);
 }
 
+#[tokio::test]
+async fn should_insert_a_new_todo_item_and_then_fetch_it() {
+    let test_db = TestDb::new().await;
+    let repository = Repository::new(test_db.pg_pool.clone());
+
+    let inserted_todo_item = repository.insert_todo_item("foobar").await.unwrap();
+    let todo_items = repository.fetch_todo_items(None, 0..10).await.unwrap();
+
+    assert_eq!(todo_items, vec![inserted_todo_item]);
+}
+
 ///
 /// A fresh database used for tests.
-/// This database is _deleted_ when the struct goes out of scope. See the `Drop` impl below.
+///
+/// In Rust, test run in parallel. To keep them isolated, they should use different
+/// databases. The solution for now is to create one database per test thread,
+/// and derive the database name from the thread name, delete the database
+/// if it already exists, (re)create it and at last run migrations.
 ///
 struct TestDb {
     pg_pool: sqlx::PgPool,
-    database_name: uuid::Uuid,
 }
 
 impl TestDb {
     async fn new() -> Self {
-        let database_name = uuid::Uuid::new_v4();
+        let database_name = format!(
+            "test_db_{}",
+            std::thread::current().name().unwrap().to_string()
+        );
         let url_without_database = "postgres://rust:rust@localhost:9876";
+
         let mut connection = sqlx::PgConnection::connect(url_without_database)
             .await
             .unwrap();
 
-        // Create a new database
-        sqlx::query(&format!("CREATE DATABASE \"{}\"", database_name))
+        sqlx::query(&format!(r#"DROP DATABASE IF EXISTS "{}""#, database_name))
             .execute(&mut connection)
             .await
-            .unwrap();
+            .expect("failed to drop");
+
+        // Create a new database
+        sqlx::query(&format!(r#"CREATE DATABASE "{}""#, database_name))
+            .execute(&mut connection)
+            .await
+            .expect("failed creating test database");
 
         let pg_pool = sqlx::PgPool::connect(&format!("{}/{}", url_without_database, database_name))
             .await
@@ -47,31 +70,6 @@ impl TestDb {
             .await
             .expect("Failed to migrate");
 
-        Self {
-            pg_pool,
-            database_name,
-        }
-    }
-}
-
-// The Drop trait is how to implement a destructor in Rust.
-impl Drop for TestDb {
-    fn drop(&mut self) {
-        let pg_pool = self.pg_pool.clone();
-        let database_name = self.database_name;
-
-        // Note that `drop` is not an async function. Rust does not support async destructors (yet, at least).
-        // What we can instead do is to _spawn_ a future onto the locally running executor (on the current thread).
-        //
-        // So, what happens when an asynchronous test function returns? TestDb gets dropped,
-        // then this future gets spawned. The `tokio::test` macro is generating code for running the
-        // async test function on a thread-local executor. The test is considered done when that executor
-        // has no more tasks to run. Therefore a test function may freely `spawn` as many futures as it wants.
-        tokio::spawn(async move {
-            sqlx::query(&format!("DROP DATABASE \"{}\"", database_name))
-                .execute(&pg_pool)
-                .await
-                .unwrap();
-        });
+        Self { pg_pool }
     }
 }

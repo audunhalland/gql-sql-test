@@ -36,12 +36,14 @@ impl Repository {
     ) -> Result<Vec<TodoItem>, AppError> {
         let rows = sqlx::query_as!(
             TodoItem,
-            "SELECT id, description, done
+            "
+            SELECT id, description, done
             FROM todo_item
             WHERE
                 id = any($1) OR $1 IS NULL
             OFFSET $2
-            LIMIT $3",
+            LIMIT $3
+            ",
             ids,
             range.start as u32,
             range.end as u32
@@ -50,5 +52,23 @@ impl Repository {
         .await?;
 
         Ok(rows)
+    }
+
+    /// Create and insert a new TODO item, and return it
+    pub async fn insert_todo_item(&self, description: &str) -> Result<TodoItem, AppError> {
+        let row = sqlx::query_as!(
+            TodoItem,
+            "
+            INSERT INTO todo_item
+            (id, description, done)
+            VALUES (uuid_generate_v4(), $1, false)
+            RETURNING id, description, done
+            ",
+            description
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(row)
     }
 }
