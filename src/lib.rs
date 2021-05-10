@@ -1,8 +1,8 @@
 pub mod config;
+pub mod repository;
 
 mod bus;
 mod error;
-mod repository;
 mod server;
 
 pub mod schema {
