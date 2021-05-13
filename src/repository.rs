@@ -29,7 +29,7 @@ impl Repository {
     }
 
     /// Fetch todo items.
-    pub async fn fetch_todo_items(
+    pub async fn list_todo_items(
         &self,
         ids: Option<&[uuid::Uuid]>,
         range: Range<usize>,
@@ -70,5 +70,21 @@ impl Repository {
         .await?;
 
         Ok(row)
+    }
+
+    pub async fn set_done(&self, id: uuid::Uuid) -> Result<bool, AppError> {
+        let result = sqlx::query!(
+            "
+            UPDATE todo_item
+            SET done = true
+            WHERE id = $1
+            AND done = false
+            ",
+            id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(result.rows_affected() > 0)
     }
 }

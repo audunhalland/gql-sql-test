@@ -18,7 +18,7 @@ impl Query {
         ctx: &async_graphql::Context<'_>,
     ) -> Result<Vec<TodoItem>, AppError> {
         let repository = ctx.data_unchecked::<Repository>();
-        let todo_items: Vec<TodoItem> = repository.fetch_todo_items(None, 0..20).await?;
+        let todo_items: Vec<TodoItem> = repository.list_todo_items(None, 0..20).await?;
 
         Ok(todo_items)
     }
@@ -32,7 +32,7 @@ mod tests {
     #[tokio::test]
     async fn query_todos_should_work() {
         let mut mock_repo = Repository::faux();
-        faux::when!(mock_repo.fetch_todo_items(_)).then_return(Ok(vec![TodoItem {
+        faux::when!(mock_repo.list_todo_items(_)).then_return(Ok(vec![TodoItem {
             id: uuid::Uuid::nil(),
             description: "test".to_string(),
             done: false,
