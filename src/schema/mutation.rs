@@ -1,7 +1,7 @@
-use crate::bus::EventBus;
 use crate::repository::Repository;
+use crate::{bus::EventBus, error::AppError};
 
-use super::event::Event;
+use super::{event::Event, todo_item::TodoItem};
 
 ///
 /// The root of the GraphQL 'Query' type
@@ -21,11 +21,22 @@ impl Mutation {
             .map_err(|err| async_graphql::Error::new(format!("failed to send: {:?}", err)))
     }
 
+    async fn create_item(
+        &self,
+        ctx: &async_graphql::Context<'_>,
+        description: String,
+    ) -> Result<TodoItem, AppError> {
+        let repository = ctx.data_unchecked::<Repository>();
+        let item = repository.insert_todo_item(&description).await?;
+
+        Ok(item)
+    }
+
     async fn set_done(
         &self,
         ctx: &async_graphql::Context<'_>,
         id: uuid::Uuid,
-    ) -> async_graphql::Result<bool> {
+    ) -> Result<bool, AppError> {
         let repository = ctx.data_unchecked::<Repository>();
         let success = repository.set_done(id).await?;
 
