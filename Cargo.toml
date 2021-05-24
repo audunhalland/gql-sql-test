@@ -19,3 +19,5 @@ thiserror = "1"
 
 [dev-dependencies]
 faux = "0.1"
+dotenv = "0.15"
+url = "2.0"

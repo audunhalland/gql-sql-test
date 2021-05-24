@@ -3,7 +3,7 @@ use gql_sql_test::config::Config;
 #[tokio::main]
 async fn main() {
     let config = Config {
-        db_url: "postgres://rust:rust@localhost:9876/rust".to_string(),
+        db_url: std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
     };
     let pg_pool = sqlx::PgPool::connect(&config.db_url)
         .await
