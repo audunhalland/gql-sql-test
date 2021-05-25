@@ -21,7 +21,7 @@ impl Mutation {
             .map_err(|err| async_graphql::Error::new(format!("failed to send: {:?}", err)))
     }
 
-    async fn create_item(
+    async fn create_todo_item(
         &self,
         ctx: &async_graphql::Context<'_>,
         description: String,
