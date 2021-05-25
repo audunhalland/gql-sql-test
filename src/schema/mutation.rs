@@ -1,5 +1,5 @@
 use crate::repository::Repository;
-use crate::{bus::EventBus, error::AppError};
+use crate::{bus::EventBus, model::AppError};
 
 use super::{event::Event, todo_item::TodoItem};
 

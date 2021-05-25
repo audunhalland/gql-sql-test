@@ -1,5 +1,4 @@
-use crate::error::AppError;
-use crate::model::TodoFilter;
+use crate::model::{AppError, TodoFilter};
 use crate::repository::Repository;
 
 use super::todo_item::TodoItem;
@@ -11,9 +10,7 @@ pub struct Query;
 
 #[async_graphql::Object]
 impl Query {
-    ///
     /// Query our todo items.
-    ///
     async fn todo_items(
         &self,
         ctx: &async_graphql::Context<'_>,
@@ -27,6 +24,23 @@ impl Query {
             .await?;
 
         Ok(todo_items)
+    }
+
+    /// Query our todo items by id
+    async fn todo_item_by_id(
+        &self,
+        ctx: &async_graphql::Context<'_>,
+        id: uuid::Uuid,
+    ) -> Result<Option<TodoItem>, AppError> {
+        let repository = ctx.data_unchecked::<Repository>();
+        let todo_items: Vec<TodoItem> = repository
+            .list_todo_items(TodoFilter {
+                ids: Some(vec![id]),
+                range: 0..1,
+            })
+            .await?;
+
+        Ok(todo_items.into_iter().next())
     }
 }
 

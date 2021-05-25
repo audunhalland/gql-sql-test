@@ -3,9 +3,9 @@ pub mod model;
 pub mod repository;
 
 mod bus;
-mod error;
 mod server;
 
+// GraphQL schema
 pub mod schema {
     pub mod event;
     pub mod mutation;
@@ -13,6 +13,7 @@ pub mod schema {
     pub mod subscription;
     pub mod todo_item;
 
+    // Type alias for the complete TODO GraphQL schema
     pub type AppSchema =
         async_graphql::Schema<query::Query, mutation::Mutation, subscription::Subscription>;
 }

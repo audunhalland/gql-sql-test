@@ -1,5 +1,4 @@
-use crate::error::AppError;
-use crate::model::TodoFilter;
+use crate::model::{AppError, TodoFilter};
 use crate::schema::todo_item::TodoItem;
 
 ///
